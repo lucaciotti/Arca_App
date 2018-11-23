@@ -84,8 +84,8 @@ class ArtSeachPageState extends State<ArtSeachPage> with TickerProviderStateMixi
               TextField(
                 textAlign: TextAlign.center,
                 autofocus: false,
-                decoration: new InputDecoration(labelText: "Barcode or Cod.Art.:"),
-                controller:  new TextEditingController.fromValue(new TextEditingValue(text: barcode,selection: new TextSelection.collapsed(offset: barcode.length))),//new TextEditingController(text: barcode),
+                decoration: const InputDecoration(labelText: "Barcode or Cod.Art.:"),
+                controller:  new TextEditingController(text: barcode), //new TextEditingController.fromValue(new TextEditingValue(text: barcode,selection: new TextSelection.collapsed(offset: barcode.length))),//
                 onChanged: (String value) => this.barcode = value,
               ),
             ],)
@@ -155,7 +155,8 @@ class ArtSeachPageState extends State<ArtSeachPage> with TickerProviderStateMixi
     if (res == "error"){
        _showDialog("Empty Result", "No Article Found!");
     } else {
-      _showDialog("Result for: "+barcode, res, '/art/'+res);
+      //_showDialog("Result for: "+barcode, res, '/art/'+res);
+      Application.router.navigateTo(context, '/art/'+res, transition: TransitionType.inFromBottom);
       // Application.router.navigateTo(context, '/art/'+res, transition: TransitionType.inFromBottom);
       // Navigator.of(context).pushNamed('/article');
     }

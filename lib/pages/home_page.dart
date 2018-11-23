@@ -128,6 +128,29 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ),
     );
 
+    final menu3 = Expanded( 
+      child: SafeArea( 
+        child: new GridView(
+        gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        children: [
+          new GestureDetector(
+            child: new Card(
+              elevation: 5.0,
+              child: new Center(
+                child: Column( 
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                  Icon(FontAwesomeIcons.boxes),
+                  new Text('Procedura Inventario'),
+                ]),
+              ),
+            ),
+            onTap: () { Application.router.navigateTo(context, '/invCoupon', transition: TransitionType.inFromBottom); },
+          ),
+        ]),
+      ),
+    );
+
     Widget drawer = new Drawer(
       child: ListView(
         // Important: Remove any padding from the ListView.
@@ -189,14 +212,14 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
           Padding(
             padding: EdgeInsets.symmetric( vertical: 8.0),
             child: Text(
-              'Spedizione Merci',
+              'Inventario',
               style: TextStyle(
                 fontSize: 20.0,
               ),
               textAlign: TextAlign.left,
             ),
           ),
-          menu2
+          menu3
         ],
       ),
     );

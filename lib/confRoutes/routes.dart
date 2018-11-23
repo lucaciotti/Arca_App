@@ -1,11 +1,12 @@
-import 'package:arca_flutter_app/pages/articles_pages/art_page.dart';
-import 'package:arca_flutter_app/pages/articles_pages/giac_art_page.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 // import './route_handlers.dart';
 
 import 'package:arca_flutter_app/pages/home_page.dart';
 import 'package:arca_flutter_app/pages/articles_pages/search_art_page.dart';
+import 'package:arca_flutter_app/pages/articles_pages/art_page.dart';
+import 'package:arca_flutter_app/pages/articles_pages/giac_art_page.dart';
+import 'package:arca_flutter_app/pages/inventory/coupon_page.dart';
 
 class Routes {
   Router router;
@@ -45,6 +46,12 @@ class Routes {
     router.define("/giacArt/:codart", handler: new Handler(
       handlerFunc: (BuildContext context, Map<String, dynamic> params) {
         return new GiacArtPage(params["codart"][0]);
+      }
+    ));
+
+    router.define("/invCoupon", handler: new Handler(
+      handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+        return new CouponPage();
       }
     ));
   }
