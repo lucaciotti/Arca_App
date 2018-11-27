@@ -27,7 +27,7 @@ class Article {
       this._unmisura3='',
       this._fatt2=0.0,
       this._fatt3=0.0,
-      this._isLotto
+      this._isLotto=false,
     ]
   );
 
@@ -43,6 +43,7 @@ class Article {
   String get unmisura3 => _unmisura3;
   double get fatt2 => _fatt2;
   double get fatt3 => _fatt3;
+  bool get isLotto => _isLotto;
   
   Article.fromJson(Map<String, dynamic> json){
     _codice = json['codice'];
@@ -57,6 +58,7 @@ class Article {
     _unmisura3 = json['unmisura3'];
     _fatt2 = json['fatt2'].toDouble();
     _fatt3 = json['fatt3'].toDouble();
+    _isLotto = json['lotti'];
   }
 
 }

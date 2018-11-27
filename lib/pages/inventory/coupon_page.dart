@@ -5,7 +5,12 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:arca_flutter_app/helpers/barcodeScan.dart';
+
+import 'package:arca_flutter_app/controllers/inventController.dart';
+import 'package:arca_flutter_app/controllers/maganaController.dart';
+import 'package:arca_flutter_app/controllers/articleController.dart';
 
 class CouponPage extends StatefulWidget {
 
@@ -15,23 +20,56 @@ class CouponPage extends StatefulWidget {
 
 class CouponPageState extends State<CouponPage> {
   // final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
-  
+  InventController _invController = new InventController();
+  MaganaController _magController = new MaganaController();
+  ArticleController _artController = new ArticleController();
+
   BarcodeScan _barcodeScan = new BarcodeScan();
+
   int currentStep = 0;
+  int totalStep = 0;
   String couponCode = "";
   String codArt = "";
   String codLot = "";
-  bool isLotto = true;
-  List<String> umList = <String>['', 'PZ','CF','SC'];
+  bool isLotto = false;
+  List<Tuple2<String, double>> umList = [new Tuple2('', 0.0)];
   String codmag = "";
   String esercizio = "";
+  num couponNum = 0;
   double qta = 0.0;  
+  double qtaDef = 0.0;  
+  String umPrincipale='';
   String umChoosen='';
-  double fatt=0.0;
-  int selectedUM=0;
-  List<String> _colors = <String>['', 'red', 'green', 'blue', 'orange'];
-  String _color = '';
+  double fattChoosen=0.0;
   
+  void _showDialog<T>(title, content, [route]) {
+    // flutter defined function
+    showDialog<T>(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text(title),
+          content: new Text(content),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    ).then<void>((T value) {
+      if (route != null) {
+        // Application.router.navigateTo(context, route, transition: TransitionType.inFromBottom);
+      }
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
@@ -69,6 +107,7 @@ class CouponPageState extends State<CouponPage> {
                 hintText: 'Enter the Lot',
                 labelText: 'Cod.Lotto',
               ),
+              keyboardType: TextInputType.text,
               controller:  new TextEditingController.fromValue(new TextEditingValue(text: codLot,selection: new TextSelection.collapsed(offset: codLot.length))),//new TextEditingController(text: this.couponCode),
               onChanged: (String value) => this.codLot = value,
             ) : new Padding( padding: EdgeInsets.all(0.0),) ,
@@ -78,41 +117,129 @@ class CouponPageState extends State<CouponPage> {
       new Step(
           title: new Text("Qta & UM"),
           subtitle: new Text("Quantity & UnMisura"),
-          content: new Row( children: <Widget>[
-            new DropdownButton(
-                hint: new Text("Select a UM"),
-                value: umChoosen,
-                isDense: true,
-                onChanged: (newValue) {
-                  setState(() {
-                    // unmisura = newValue;
-                  });
-                },
-                items: umList.map((item) {
-                    return new DropdownMenuItem(
-                      value: item,
-                      child: new Text(
-                        item,
-                        style: new TextStyle(color: Colors.black),
-                      ),
-                    );
-                }).toList(),
+          content: new Column(
+            children: <Widget>[
+              new DropdownButton(
+                  hint: new Text("Select a UM"),
+                  value: umChoosen,
+                  isDense: true,
+                  onChanged: (newValue) {
+                    setState(() {
+                      umChoosen = newValue;
+                      umList.forEach((item){
+                        if(item.item1==newValue) fattChoosen=item.item2;
+                      });
+                      if(this.qta!=0){
+                        this.qta = this.qta*this.fattChoosen;
+                      }
+                    });
+                  },
+                  items: umList.map((item) {
+                      return new DropdownMenuItem(
+                        value: item.item1,
+                        child: new Text(
+                          item.item1,
+                          style: new TextStyle(color: Colors.black),
+                        ),
+                      );
+                  }).toList(),
+                ),
+              new TextField(
+                decoration: const InputDecoration(
+                  icon: const Icon(FontAwesomeIcons.calculator),
+                  hintText: 'Enter quantities',
+                  labelText: 'Quantity',
+                ),
+                keyboardType: TextInputType.number,
+                controller:  new TextEditingController.fromValue(new TextEditingValue(text: this.qta.toString(),selection: new TextSelection.collapsed(offset: this.qta.toString().length))),
+                onChanged: (value) => this.qta = double.parse(value),
               ),
-            new TextField(
-              decoration: const InputDecoration(
-                icon: const Icon(Icons.phone),
-                hintText: 'Enter quantities',
-                labelText: 'Quantity',
-              ),
-              keyboardType: TextInputType.phone,
-              inputFormatters: [
-                WhitelistingTextInputFormatter.digitsOnly,
-              ],
-            )
-          ]),
+            ]
+          ),
           state:  currentStep > 2 ? StepState.complete : StepState.disabled,
           isActive: currentStep >= 2),
+      new Step(
+          title: new Text("Recap"),
+          subtitle: new Text("Final"),
+          content: new Column( children: <Widget>[
+            new Table(
+              border: TableBorder.all(width: 1.0, color: Colors.black),
+                children: [
+                  TableRow(children: [
+                    TableCell(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          new Text('# Cartellino'),
+                          new Text(this.couponNum.toString()),
+                        ],
+                      ),
+                    )
+                  ]),
+                  TableRow(children: [
+                    TableCell(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          new Text('Esercizio'),
+                          new Text(this.esercizio),
+                        ],
+                      ),
+                    )
+                  ]),
+                  TableRow(children: [
+                    TableCell(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          new Text('Magazzino'),
+                          new Text(this.codmag),
+                        ],
+                      ),
+                    )
+                  ]),
+                  TableRow(children: [
+                    TableCell(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          new Text('Cod. Articolo'),
+                          new Text(this.codArt),
+                        ],
+                      ),
+                    )
+                  ]),
+                  TableRow(children: [
+                    TableCell(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          new Text('Cod. Lotto'),
+                          new Text(this.codLot),
+                        ],
+                      ),
+                    )
+                  ]),
+                  TableRow(children: [
+                    TableCell(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          new Text('Quantità'),
+                          (this.umChoosen!=this.umPrincipale) ?
+                            new Text(this.qta.toString()+' '+this.umChoosen+' => '+this.qtaDef.toString()+' '+this.umPrincipale) : 
+                            new Text(this.qta.toString()+' '+this.umChoosen),
+                        ],
+                      ),
+                    )
+                  ])
+                ],
+              ),
+          ]),
+          state:  currentStep > 3 ? StepState.complete : StepState.disabled,
+          isActive: currentStep >= 3),
     ];
+    this.totalStep = invSteps.length;
 
     Widget body = new Container(
           child: new Stepper(
@@ -136,13 +263,7 @@ class CouponPageState extends State<CouponPage> {
               print("onStepCancel : " + currentStep.toString());
             },
             onStepContinue: () {
-              setState(() {
-                if (currentStep < invSteps.length - 1) {
-                  currentStep = currentStep + 1;
-                } else {
-                  currentStep = 0;
-                }
-              });
+              goFutherStep();
               print("onStepContinue : " + currentStep.toString());
             },
           )
@@ -186,7 +307,7 @@ class CouponPageState extends State<CouponPage> {
   Future barcodeScanning() async {
     String res = await this._barcodeScan.scan();
     if (res.startsWith('error:')) {
-      // this._showDialog('Scan Error', res.substring(6));
+      this._showDialog('Scan Error', res.substring(6));
     } else {
       setState(() {
         switch(this.currentStep) { 
@@ -198,19 +319,89 @@ class CouponPageState extends State<CouponPage> {
           
           case 1: { 
             //Barcode Art.
-            this.codArt = res;
-          } 
-          break; 
-
-          case 2: { 
-              //statements; 
+            if(isLotto) {
+              this.codLot = res;
+            } else {
+              this.codArt = res;
+            }
           } 
           break; 
         }
-        // this.barcodeSeach(res);
       });
+      goFutherStep();
     }
   }
 
+  Future goFutherStep() async {
+    bool goOn = false;
+    switch(this.currentStep) { 
+      case 0: { 
+        dynamic couponFetch = await _invController.fetchCoupon(this.couponCode);
+        if (couponFetch==null || couponFetch.isEmpty) {
+          String rMag = this.couponCode.substring(4,4+3);
+          dynamic magFetch = await _magController.fetchRightMag(rMag);
+          if (magFetch!=null && !magFetch.isEmpty) {
+            this.codmag = magFetch[0].codice;
+            this.esercizio = '20'+this.couponCode.substring(2,2+2);
+            this.couponNum = int.parse(this.couponCode.substring(7,7+5));            
+            this._showDialog('Result', this.codmag+' '+this.esercizio+' '+this.couponNum.toString());
+          }
+        }
+        goOn = true;
+      } 
+      break; 
+      
+      case 1: { 
+        if(this.isLotto && this.codLot.isNotEmpty) goOn=true;
+        if(!goOn){
+          String res = await this._artController.searchScan(this.codArt);
+          if (res == "error"){
+            _showDialog("Empty Result", "No Article Found!");
+          } else {
+            dynamic artResult = await _artController.fetchArticle(res);
+            setState(() {
+              this.codArt = artResult[0].codice;
+              this.umPrincipale = artResult[0].unmisura;
+              this.umChoosen = artResult[0].unmisura;
+              this.fattChoosen = 1.0;
+              this.umList.clear();
+              this.umList.add(new Tuple2('', 0.0));
+              this.umList.add(new Tuple2(artResult[0].unmisura, 1.0));
+              this.umList.add(new Tuple2(artResult[0].unmisura2, artResult[0].fatt2));
+              this.umList.add(new Tuple2(artResult[0].unmisura3, artResult[0].fatt3));
+              this.isLotto = artResult[0].isLotto;
+              this._showDialog('Result', this.umPrincipale+' '+this.fattChoosen.toString()+' '+this.isLotto.toString());
+            });
+            if(!this.isLotto) goOn = true;
+          }
+        }
+      } 
+      break; 
+
+      case 2: { 
+        if(this.fattChoosen<=0) return _showDialog('Attenzione', 'Selezionare Altra U.M. -> Errata.');
+        if(this.qta<=0) return _showDialog('Attenzione', 'Quantità deve essere > di 0.');
+        this.qtaDef = this.qta*this.fattChoosen;
+        if(this.umChoosen.isNotEmpty && this.qta>0 ) goOn=true;
+      } 
+      break; 
+
+      case 3: { 
+        // _invController.
+      } 
+      break; 
+    }
+
+    // STEP +1
+    if(goOn){
+      setState(() {
+        if (currentStep < this.totalStep - 1) {
+          currentStep = currentStep + 1;
+        } else {
+          currentStep = 0;
+        }
+      });
+    }
+  }
   
 }
