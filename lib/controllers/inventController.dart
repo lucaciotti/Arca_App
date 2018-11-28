@@ -22,4 +22,28 @@ class InventController {
     return json.map<Coupon>((data) => Coupon.fromJson(data)).toList();
   }
 
+  Future<List<Coupon>> insertCoupon(Coupon coupon) {
+    final couponUrl = Uri.http("172.16.2.9:3018","/api/v1/invent/insertCoupon/");
+    Map<String, dynamic> couponMap = coupon.toMap();
+    return _netUtil.post(couponUrl, headers: couponMap).then((dynamic json) async {
+      print(json);
+      List<Coupon> couponList = new List<Coupon>();
+      if(json['success'] != null) {
+        couponList.add(coupon);
+      } 
+      return couponList;
+    });
+  }
+
+  Future<List<Coupon>> markCoupon(String codcart){
+    final couponUrl = Uri.http("172.16.2.9:3018","/api/v1/invent/markWarnCoupon/"+codcart);
+    return _netUtil.put(couponUrl).then((dynamic json) async {
+      if(json is List){
+        return new List<Coupon>();
+      }
+      print(json);
+      return new List<Coupon>();
+    });
+  }
+
 }

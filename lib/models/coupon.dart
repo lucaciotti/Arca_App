@@ -41,8 +41,20 @@ class Coupon {
     _lotto = json['lotto'];
     _esercizio = json['esercizio'];
     _ubicaz = json['ubicaz'];
-    _idterm = int.parse(json['id_term']);
-    _isWarn = json['warn'].toBoolean();
+    _idterm = (json['id_term'] is String) ? int.parse(json['id_term']) : json['id_term'];
+    _isWarn = json['warn'];
   }
 
+  Map<String, dynamic> toMap() {
+    var map = new Map<String, dynamic>();
+    map["coupon"] = _codcart;
+    map["codart"] = _codicearti;
+    map["codmag"] = _magazzino;
+    map["qta"] = _quantita.toString();
+    map["codlot"] = _lotto;
+    map["esercizio"] = _esercizio;
+    map["ubicaz"] = _ubicaz;
+    map["idterm"] = _idterm.toString();
+    return map;
+  }
 }

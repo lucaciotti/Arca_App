@@ -138,7 +138,7 @@ class ArticlePageState extends State<ArticlePage> with TickerProviderStateMixin 
                 icon: Icon(Icons.home),
                 // color: Colors.white,
                 onPressed: () {
-                  Application.router.navigateTo(context, '/home', transition: TransitionType.inFromRight, replace: true);
+                  Application.router.navigateTo(context, '/home', transition: TransitionType.inFromRight, replace: true, clearStack: true);
                   //  Navigator.of(context).pushReplacementNamed('/home');
                 },
               ),

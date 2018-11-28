@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:arca_flutter_app/models/coupon.dart';
 import 'package:tuple/tuple.dart';
 import 'package:arca_flutter_app/confRoutes/application.dart';
 import 'package:fluro/fluro.dart';
@@ -41,6 +42,8 @@ class CouponPageState extends State<CouponPage> {
   String umPrincipale='';
   String umChoosen='';
   double fattChoosen=0.0;
+  bool isWarn = false;
+  bool isReadOnly = false;
   
   void _showDialog<T>(title, content, [route]) {
     // flutter defined function
@@ -64,7 +67,7 @@ class CouponPageState extends State<CouponPage> {
       },
     ).then<void>((T value) {
       if (route != null) {
-        // Application.router.navigateTo(context, route, transition: TransitionType.inFromBottom);
+        Application.router.navigateTo(context, route, transition: TransitionType.inFromBottom, replace: true);
       }
     });
   }
@@ -129,9 +132,6 @@ class CouponPageState extends State<CouponPage> {
                       umList.forEach((item){
                         if(item.item1==newValue) fattChoosen=item.item2;
                       });
-                      if(this.qta!=0){
-                        this.qta = this.qta*this.fattChoosen;
-                      }
                     });
                   },
                   items: umList.map((item) {
@@ -150,9 +150,11 @@ class CouponPageState extends State<CouponPage> {
                   hintText: 'Enter quantities',
                   labelText: 'Quantity',
                 ),
+                // autofocus: true,
                 keyboardType: TextInputType.number,
                 controller:  new TextEditingController.fromValue(new TextEditingValue(text: this.qta.toString(),selection: new TextSelection.collapsed(offset: this.qta.toString().length))),
                 onChanged: (value) => this.qta = double.parse(value),
+                textAlign: TextAlign.right,
               ),
             ]
           ),
@@ -162,6 +164,7 @@ class CouponPageState extends State<CouponPage> {
           title: new Text("Recap"),
           subtitle: new Text("Final"),
           content: new Column( children: <Widget>[
+            (this.isWarn) ? Row( children: <Widget>[ Icon(Icons.delete), Text('ATENNZIONE! Cartellino Segnalato Errato!', style: TextStyle(fontWeight: FontWeight.bold)) ],) : new Padding( padding: EdgeInsets.all(0.0),),
             new Table(
               border: TableBorder.all(width: 1.0, color: Colors.black),
                 children: [
@@ -204,7 +207,7 @@ class CouponPageState extends State<CouponPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
                           new Text('Cod. Articolo'),
-                          new Text(this.codArt),
+                          new Text(this.codArt, style: TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
                     )
@@ -215,7 +218,7 @@ class CouponPageState extends State<CouponPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
                           new Text('Cod. Lotto'),
-                          new Text(this.codLot),
+                          new Text(this.codLot, style: TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
                     )
@@ -227,14 +230,26 @@ class CouponPageState extends State<CouponPage> {
                         children: <Widget>[
                           new Text('Quantità'),
                           (this.umChoosen!=this.umPrincipale) ?
-                            new Text(this.qta.toString()+' '+this.umChoosen+' => '+this.qtaDef.toString()+' '+this.umPrincipale) : 
-                            new Text(this.qta.toString()+' '+this.umChoosen),
+                            new Text(this.qta.toString()+' '+this.umChoosen+' => '+this.qtaDef.toString()+' '+this.umPrincipale, style: TextStyle(fontWeight: FontWeight.bold)) : 
+                            new Text(this.qta.toString()+' '+this.umChoosen, style: TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
                     )
                   ])
                 ],
               ),
+            new Padding( padding: EdgeInsets.all(5.0),),
+            (this.isReadOnly && !this.isWarn) ? new FlatButton(
+                color: Colors.red[300],
+                child: Row( 
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[Icon(Icons.delete), new Text('Segnala Cartellino Errato', style: TextStyle(fontWeight: FontWeight.bold),),],),
+                onPressed: () { 
+                  Future<dynamic> res = _invController.markCoupon(this.couponCode);
+                  this.currentStep = 0;
+                  this.goFutherStep();
+                },
+              ) : new Padding( padding: EdgeInsets.all(0.0),),
           ]),
           state:  currentStep > 3 ? StepState.complete : StepState.disabled,
           isActive: currentStep >= 3),
@@ -253,17 +268,19 @@ class CouponPageState extends State<CouponPage> {
               print("onStepTapped : " + step.toString());
             },
             onStepCancel: () {
-              setState(() {
-                if (currentStep > 0) {
-                  currentStep = currentStep - 1;
-                } else {
-                  currentStep = 0;
-                }
-              });
+              if(!this.isReadOnly){
+                setState(() {
+                  if (currentStep > 0) {
+                    currentStep = currentStep - 1;
+                  } else {
+                    currentStep = 0;
+                  }
+                });
+              }
               print("onStepCancel : " + currentStep.toString());
             },
             onStepContinue: () {
-              goFutherStep();
+              goFutherStep(forceGoOn: true);
               print("onStepContinue : " + currentStep.toString());
             },
           )
@@ -273,7 +290,7 @@ class CouponPageState extends State<CouponPage> {
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text("Simple Material App"),
+        title: new Text("Procedura INVENTARIO"),
       ),
       // Body
       body: body,
@@ -287,7 +304,7 @@ class CouponPageState extends State<CouponPage> {
                 icon: Icon(Icons.home),
                 // color: Colors.white,
                 onPressed: () {
-                  Application.router.navigateTo(context, '/home', transition: TransitionType.inFromRight, replace: true);
+                  Application.router.navigateTo(context, '/home', transition: TransitionType.inFromRight, replace: true, clearStack: true);
                   //  Navigator.of(context).pushReplacementNamed('/home');
                 },
               ),
@@ -313,7 +330,11 @@ class CouponPageState extends State<CouponPage> {
         switch(this.currentStep) { 
           case 0: { 
             //Barcode Coupon  
-            this.couponCode = res;
+            if(res.substring(0,2)=='24'){
+              this.couponCode = res;
+            } else {
+              _showDialog('Error', 'Barcode Errato');
+            }
           } 
           break; 
           
@@ -332,27 +353,51 @@ class CouponPageState extends State<CouponPage> {
     }
   }
 
-  Future goFutherStep() async {
+  Future goFutherStep({bool forceGoOn=false}) async {
     bool goOn = false;
     switch(this.currentStep) { 
       case 0: { 
-        dynamic couponFetch = await _invController.fetchCoupon(this.couponCode);
-        if (couponFetch==null || couponFetch.isEmpty) {
-          String rMag = this.couponCode.substring(4,4+3);
-          dynamic magFetch = await _magController.fetchRightMag(rMag);
-          if (magFetch!=null && !magFetch.isEmpty) {
-            this.codmag = magFetch[0].codice;
-            this.esercizio = '20'+this.couponCode.substring(2,2+2);
-            this.couponNum = int.parse(this.couponCode.substring(7,7+5));            
-            this._showDialog('Result', this.codmag+' '+this.esercizio+' '+this.couponNum.toString());
+        if(this.couponCode.isNotEmpty){
+          dynamic couponFetch = await _invController.fetchCoupon(this.couponCode);
+          if (couponFetch==null || couponFetch.isEmpty) {
+            String rMag = this.couponCode.substring(4,4+3);
+            dynamic magFetch = await _magController.fetchRightMag(rMag);
+            if (magFetch!=null && !magFetch.isEmpty) {
+              this.codmag = magFetch[0].codice;
+              this.esercizio = '20'+this.couponCode.substring(2,2+2);
+              this.couponNum = int.parse(this.couponCode.substring(7,7+5));            
+              // this._showDialog('Result', this.codmag+' '+this.esercizio+' '+this.couponNum.toString());
+            }
+          } else {
+            Coupon readOnly = couponFetch[0];
+            dynamic artResult = await _artController.fetchArticle(readOnly.codicearti);
+            setState(() {
+              this.codArt = readOnly.codicearti;
+              this.codmag = readOnly.magazzino;
+              this.codLot = readOnly.lotto;
+              this.couponNum = int.parse(this.couponCode.substring(7,7+5));
+              this.esercizio = readOnly.esercizio;
+              this.qta = readOnly.quantita;
+              this.umChoosen=artResult[0].unmisura;
+              this.umPrincipale = artResult[0].unmisura;
+              this.fattChoosen = 1.0;
+              this.umList.clear();
+              this.umList.add(new Tuple2('', 0.0));
+              this.umList.add(new Tuple2(artResult[0].unmisura, 1.0));
+              this.umList.add(new Tuple2(artResult[0].unmisura2, artResult[0].fatt2));
+              this.umList.add(new Tuple2(artResult[0].unmisura3, artResult[0].fatt3));
+              this.isLotto = artResult[0].isLotto;
+              this.isWarn = readOnly.isWart;
+              this.isReadOnly = true;
+            });
           }
+          goOn = true;
         }
-        goOn = true;
       } 
       break; 
       
       case 1: { 
-        if(this.isLotto && this.codLot.isNotEmpty) goOn=true;
+        if(this.isLotto && this.codLot.isNotEmpty && forceGoOn) goOn=true;
         if(!goOn){
           String res = await this._artController.searchScan(this.codArt);
           if (res == "error"){
@@ -370,7 +415,7 @@ class CouponPageState extends State<CouponPage> {
               this.umList.add(new Tuple2(artResult[0].unmisura2, artResult[0].fatt2));
               this.umList.add(new Tuple2(artResult[0].unmisura3, artResult[0].fatt3));
               this.isLotto = artResult[0].isLotto;
-              this._showDialog('Result', this.umPrincipale+' '+this.fattChoosen.toString()+' '+this.isLotto.toString());
+              // this._showDialog('Result', this.umPrincipale+' '+this.fattChoosen.toString()+' '+this.isLotto.toString());
             });
             if(!this.isLotto) goOn = true;
           }
@@ -386,8 +431,19 @@ class CouponPageState extends State<CouponPage> {
       } 
       break; 
 
-      case 3: { 
-        // _invController.
+      case 3: {
+        if(!this.isReadOnly){ 
+          Coupon coupon = new Coupon(this.couponCode, this.codArt, this.codmag, this.qtaDef, this.codLot, this.esercizio);
+          List<Coupon> resCoupon = await _invController.insertCoupon(coupon);
+          if(resCoupon.isNotEmpty) {
+            _showDialog('OK', 'Cartellino Caricato', '/invCoupon');
+            goOn=true;
+          } else {
+            _showDialog('Attenzione', 'Something Wrong');
+          }
+        } else {
+          goOn = true;
+        }
       } 
       break; 
     }
@@ -398,8 +454,10 @@ class CouponPageState extends State<CouponPage> {
         if (currentStep < this.totalStep - 1) {
           currentStep = currentStep + 1;
         } else {
+          //Application.router.navigateTo(context, '/invCoupon', transition: TransitionType.inFromRight, replace: true);
           currentStep = 0;
         }
+        if(this.isReadOnly) currentStep = 3;
       });
     }
   }

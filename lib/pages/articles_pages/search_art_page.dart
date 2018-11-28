@@ -82,10 +82,9 @@ class ArtSeachPageState extends State<ArtSeachPage> with TickerProviderStateMixi
             padding: const EdgeInsets.all(16.0),
             child: Column( children: <Widget>[
               TextField(
-                textAlign: TextAlign.center,
                 autofocus: false,
                 decoration: const InputDecoration(labelText: "Barcode or Cod.Art.:"),
-                controller:  new TextEditingController(text: barcode), //new TextEditingController.fromValue(new TextEditingValue(text: barcode,selection: new TextSelection.collapsed(offset: barcode.length))),//
+                controller:  new TextEditingController.fromValue(new TextEditingValue(text: barcode,selection: new TextSelection.collapsed(offset: barcode.length))),//new TextEditingController(text: barcode), 
                 onChanged: (String value) => this.barcode = value,
               ),
             ],)
@@ -121,7 +120,7 @@ class ArtSeachPageState extends State<ArtSeachPage> with TickerProviderStateMixi
                 icon: Icon(Icons.home),
                 // color: Colors.white,
                 onPressed: () {
-                  Application.router.navigateTo(context, '/home', transition: TransitionType.inFromRight, replace: true);
+                  Application.router.navigateTo(context, '/home', transition: TransitionType.inFromRight, replace: true, clearStack: true);
                   //  Navigator.of(context).pushReplacementNamed('/home');
                 },
               ),

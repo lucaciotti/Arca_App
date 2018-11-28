@@ -9,6 +9,7 @@ class NetApiHelper {
   factory NetApiHelper() => _instance;
 
   final JsonDecoder _decoder = new JsonDecoder();
+  final JsonEncoder _encoder = new JsonEncoder();
 
   Future<dynamic> get(Uri url, {Map headers}) {
     // if (headers == null) headers={"Accept": "application/json"};
@@ -48,18 +49,74 @@ class NetApiHelper {
     }
   }
 
-  Future<dynamic> post(Uri url, {Map headers, body, encoding}) {
+  Future<dynamic> post(Uri url, {Map<String, dynamic> headers, body, encoding}) {
     // if (headers == null) headers={"Accept": "application/json"};
-    return http
-        .post(url, body: body, headers: headers, encoding: encoding)
-        .then((http.Response response) {
-      final String res = response.body;
-      final int statusCode = response.statusCode;
+    // body = _encoder.convert(body);
+    Map<String, String> newHeader = {};
+    headers.forEach((k,v)=>newHeader[k.toString()] = v.toString());
+    try {
+      return http
+          .post(url, body: body, headers: newHeader, encoding: encoding)
+          .then((http.Response response) {
+        final String res = response.body;
+        final int statusCode = response.statusCode;
 
-      if ((statusCode != 200 && statusCode != 401) || res == null) {
-        throw new Exception("Error while fetching data");
-      }
-      return _decoder.convert(res);
-    });
+        if (statusCode == 200 && res != null) {
+          print(res);
+          dynamic json = _decoder.convert(res);
+          if(json['success'] != null){
+            print('success');
+            return json;
+          } else {
+            print(json['errorMessage']);
+            return json;
+          }
+        } else if (statusCode == 400) {
+          return {"errorMessage": "Bad request"};
+        } else if (statusCode == 401) {
+          return {"errorMessage": "Unauthorized"};
+        } else {
+          throw new Exception("Error while fetching data");
+        }
+      }).catchError((e) {
+        print("Got error: ${e.error}");     // Finally, callback fires.
+        return {"errorMessage": "${e.error}"};
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<dynamic> put(Uri url, {Map<String, dynamic> headers, body, encoding}) {
+    // if (headers == null) headers={"Accept": "application/json"};
+    try {
+      return http.put(url, body: body, headers: headers, encoding: encoding).then((http.Response response) {
+        final String res = response.body;
+        final int statusCode = response.statusCode;
+
+        if (statusCode == 200 && res != null) {
+          print(res);
+          dynamic json = _decoder.convert(res);
+          if(json['success'] != null){
+            print('success');
+            return json;
+          } else {
+            print(json['errorMessage']);
+            return json;
+          }
+        } else if (statusCode == 400) {
+          return {"errorMessage": "Bad request"};
+        } else if (statusCode == 401) {
+          return {"errorMessage": "Unauthorized"};
+        } else {
+          throw new Exception("Error while fetching data");
+        }
+      }).catchError((e) {
+        print("Got error: ${e.error}");     // Finally, callback fires.
+        return {"errorMessage": "${e.error}"};
+      });
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }
