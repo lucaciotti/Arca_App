@@ -24,9 +24,9 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _showNotImplementedMessage() {
-    Navigator.pop(context); // Dismiss the drawer.
+    // Navigator.pop(context); // Dismiss the drawer.
     _scaffoldKey.currentState.showSnackBar(
-        const SnackBar(content: Text("The drawer's items don't do anything")));
+        const SnackBar(content: Text("Not yet implemented...")));
   }
 
   @override
@@ -85,7 +85,21 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ]),
               ),
             ),
-            onTap: () { },
+            onTap: () { _showNotImplementedMessage(); },
+          ),
+          new GestureDetector(
+            child: new Card(
+              elevation: 5.0,
+              child: new Center(
+                child: Column( 
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                  Icon(FontAwesomeIcons.truckLoading),
+                  new Text('Gestione PackingList'),
+                ]),
+              ),
+            ),
+            onTap: () { _showNotImplementedMessage(); },
           ),
         ]),
       ),

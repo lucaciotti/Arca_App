@@ -250,6 +250,15 @@ class CouponPageState extends State<CouponPage> {
                   this.goFutherStep();
                 },
               ) : new Padding( padding: EdgeInsets.all(0.0),),
+            (this.isReadOnly) ? new FlatButton(
+                color: Colors.green[300],
+                child: Row( 
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[Icon(FontAwesomeIcons.plus), new Text('Nuovo Cartellino', style: TextStyle(fontWeight: FontWeight.bold),),],),
+                onPressed: () { 
+                  Application.router.navigateTo(context, '/invCoupon', transition: TransitionType.inFromRight, replace: true);
+                },
+              ) : new Padding( padding: EdgeInsets.all(0.0),),
           ]),
           state:  currentStep > 3 ? StepState.complete : StepState.disabled,
           isActive: currentStep >= 3),
@@ -262,9 +271,9 @@ class CouponPageState extends State<CouponPage> {
             steps: invSteps,
             type: StepperType.vertical,
             onStepTapped: (step) {
-              setState(() {
+              /* setState(() {
                 currentStep = step;
-              });
+              }); */
               print("onStepTapped : " + step.toString());
             },
             onStepCancel: () {
@@ -322,34 +331,38 @@ class CouponPageState extends State<CouponPage> {
   }
 
   Future barcodeScanning() async {
-    String res = await this._barcodeScan.scan();
-    if (res.startsWith('error:')) {
-      this._showDialog('Scan Error', res.substring(6));
+    if(currentStep>1) {
+      this._showDialog('Info', 'Nothing to Scan For...');
     } else {
-      setState(() {
-        switch(this.currentStep) { 
-          case 0: { 
-            //Barcode Coupon  
-            if(res.substring(0,2)=='24'){
-              this.couponCode = res;
-            } else {
-              _showDialog('Error', 'Barcode Errato');
-            }
-          } 
-          break; 
-          
-          case 1: { 
-            //Barcode Art.
-            if(isLotto) {
-              this.codLot = res;
-            } else {
-              this.codArt = res;
-            }
-          } 
-          break; 
-        }
-      });
-      goFutherStep();
+      String res = await this._barcodeScan.scan();
+      if (res.startsWith('error:')) {
+        this._showDialog('Scan Error', res.substring(6));
+      } else {
+        setState(() {
+          switch(this.currentStep) { 
+            case 0: { 
+              //Barcode Coupon  
+              if(res.substring(0,2)=='24'){
+                this.couponCode = res;
+              } else {
+                _showDialog('Error', 'Barcode Errato');
+              }
+            } 
+            break; 
+            
+            case 1: { 
+              //Barcode Art.
+              if(isLotto) {
+                this.codLot = res;
+              } else {
+                this.codArt = res;
+              }
+            } 
+            break; 
+          }
+        });
+        goFutherStep();
+      }
     }
   }
 
