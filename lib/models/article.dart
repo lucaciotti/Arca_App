@@ -46,16 +46,16 @@ class Article {
   bool get isLotto => _isLotto;
   
   Article.fromJson(Map<String, dynamic> json){
-    _codice = json['codice'];
-    _descrizion = json['descrizion'];
-    _gruppo = json['gruppo'];
+    _codice = json['codice'].trim();
+    _descrizion = json['descrizion'].trim();
+    _gruppo = json['gruppo'].trim();
     _pesounit = json['pesounit'].toDouble();
     _misural = json['u_misural'].toDouble();
     _misurah = json['u_misurah'].toDouble();
     _misuras = json['u_misuras'].toDouble();
-    _unmisura = json['unmisura'];
-    _unmisura2 = json['unmisura2'];
-    _unmisura3 = json['unmisura3'];
+    _unmisura = json['unmisura'].trim();
+    _unmisura2 = json['unmisura2'].trim();
+    _unmisura3 = json['unmisura3'].trim();
     _fatt2 = json['fatt2'].toDouble();
     _fatt3 = json['fatt3'].toDouble();
     _isLotto = json['lotti'];

@@ -34,13 +34,13 @@ class Coupon {
   bool get isWart => _isWarn;
   
   Coupon.fromJson(Map<String, dynamic> json){
-    _codcart = json['codcart'];
-    _codicearti = json['codicearti'];
-    _magazzino = json['magazzino'];
+    _codcart = json['codcart'].trim();
+    _codicearti = json['codicearti'].trim();
+    _magazzino = json['magazzino'].trim();
     _quantita = json['quantita'].toDouble();
-    _lotto = json['lotto'];
-    _esercizio = json['esercizio'];
-    _ubicaz = json['ubicaz'];
+    _lotto = json['lotto'].trim();
+    _esercizio = json['esercizio'].trim();
+    _ubicaz = json['ubicaz'].trim();
     _idterm = (json['id_term'] is String) ? int.parse(json['id_term']) : json['id_term'];
     _isWarn = json['warn'];
   }

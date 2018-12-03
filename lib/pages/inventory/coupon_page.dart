@@ -44,6 +44,12 @@ class CouponPageState extends State<CouponPage> {
   double fattChoosen=0.0;
   bool isWarn = false;
   bool isReadOnly = false;
+
+  var couponfocus = new FocusNode();
+  var codArtfocus = new FocusNode();
+  var codLotfocus = new FocusNode();
+  var qtafocus = new FocusNode();
+
   
   void _showDialog<T>(title, content, [route]) {
     // flutter defined function
@@ -75,7 +81,8 @@ class CouponPageState extends State<CouponPage> {
 
   @override
   Widget build(BuildContext context) {
-
+    
+    // FocusScope.of(context).requestFocus(couponfocus);
     List<Step> invSteps = [
       new Step(
           title: new Text("Cod. Coupon"),
@@ -86,8 +93,14 @@ class CouponPageState extends State<CouponPage> {
                         hintText: 'Enter the Code',
                         labelText: 'Codice',
                       ),
+                      // focusNode: couponfocus,
+                      autofocus: true,
                       controller:  new TextEditingController.fromValue(new TextEditingValue(text: couponCode,selection: new TextSelection.collapsed(offset: couponCode.length))),//new TextEditingController(text: this.couponCode),
-                      onChanged: (String value) => this.couponCode = value,
+                      onChanged: (String value) {
+                        this.couponCode = value.trim();
+                        // if(this.couponCode.isNotEmpty) this.goFutherStep();
+                      },
+                      // onEditingComplete: () => this.goFutherStep(),
                     ),
           state:  currentStep >= 0 ? StepState.complete : StepState.disabled,
           isActive: currentStep >= 0),
@@ -101,8 +114,15 @@ class CouponPageState extends State<CouponPage> {
                 hintText: 'Enter the Code',
                 labelText: 'Codice Articolo',
               ),
+              focusNode: codArtfocus,
               controller:  new TextEditingController.fromValue(new TextEditingValue(text: codArt,selection: new TextSelection.collapsed(offset: codArt.length))),//new TextEditingController(text: this.couponCode),
-              onChanged: (String value) => this.codArt = value,
+              onChanged: (String value) {
+                this.codArt = value;
+                // if(this.codArt.isNotEmpty) this.goFutherStep();
+              },
+              onSubmitted: (value) {
+                if(value.isNotEmpty) this.goFutherStep();
+              }
             ),
             this.isLotto ? new TextField(
               decoration: const InputDecoration(
@@ -110,9 +130,13 @@ class CouponPageState extends State<CouponPage> {
                 hintText: 'Enter the Lot',
                 labelText: 'Cod.Lotto',
               ),
+              focusNode: codLotfocus,
               keyboardType: TextInputType.text,
               controller:  new TextEditingController.fromValue(new TextEditingValue(text: codLot,selection: new TextSelection.collapsed(offset: codLot.length))),//new TextEditingController(text: this.couponCode),
-              onChanged: (String value) => this.codLot = value,
+              onChanged: (String value) { 
+                this.codLot = value;
+              },
+              // onEditingComplete: () => this.goFutherStep(),
             ) : new Padding( padding: EdgeInsets.all(0.0),) ,
           ]),
           state:  currentStep > 1 ? StepState.complete : StepState.disabled,
@@ -150,10 +174,13 @@ class CouponPageState extends State<CouponPage> {
                   hintText: 'Enter quantities',
                   labelText: 'Quantity',
                 ),
-                // autofocus: true,
+                focusNode: qtafocus,
                 keyboardType: TextInputType.number,
                 controller:  new TextEditingController.fromValue(new TextEditingValue(text: this.qta.toString(),selection: new TextSelection.collapsed(offset: this.qta.toString().length))),
-                onChanged: (value) => this.qta = double.parse(value),
+                onChanged: (value) {
+                  this.qta = double.parse(value);
+                },
+                // onEditingComplete: () => this.goFutherStep(),
                 textAlign: TextAlign.right,
               ),
             ]
@@ -378,7 +405,8 @@ class CouponPageState extends State<CouponPage> {
             if (magFetch!=null && !magFetch.isEmpty) {
               this.codmag = magFetch[0].codice;
               this.esercizio = '20'+this.couponCode.substring(2,2+2);
-              this.couponNum = int.parse(this.couponCode.substring(7,7+5));            
+              this.couponNum = int.parse(this.couponCode.substring(7,7+5));    
+              FocusScope.of(context).requestFocus(codArtfocus);        
               // this._showDialog('Result', this.codmag+' '+this.esercizio+' '+this.couponNum.toString());
             }
           } else {
@@ -410,7 +438,10 @@ class CouponPageState extends State<CouponPage> {
       break; 
       
       case 1: { 
-        if(this.isLotto && this.codLot.isNotEmpty && forceGoOn) goOn=true;
+        if(this.isLotto && this.codLot.isNotEmpty && forceGoOn) {
+          FocusScope.of(context).requestFocus(qtafocus);
+          goOn=true;
+        }
         if(!goOn){
           String res = await this._artController.searchScan(this.codArt);
           if (res == "error"){
@@ -427,9 +458,13 @@ class CouponPageState extends State<CouponPage> {
               this.umList.add(new Tuple2(artResult[0].unmisura, 1.0));
               this.umList.add(new Tuple2(artResult[0].unmisura2, artResult[0].fatt2));
               this.umList.add(new Tuple2(artResult[0].unmisura3, artResult[0].fatt3));
-              this.isLotto = artResult[0].isLotto;
+              this.isLotto = artResult[0].isLotto;    
               // this._showDialog('Result', this.umPrincipale+' '+this.fattChoosen.toString()+' '+this.isLotto.toString());
             });
+              // FocusScope.of(context).requestFocus(codLotfocus);
+            if(!this.isLotto) {
+              FocusScope.of(context).requestFocus(qtafocus);
+            }
             if(!this.isLotto) goOn = true;
           }
         }

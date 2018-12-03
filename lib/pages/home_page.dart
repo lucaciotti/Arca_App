@@ -242,6 +242,13 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
       key: _scaffoldKey,
       appBar: new AppBar(
         title: Text('Arca APP'),
+        /* actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.bluetooth_connected),
+            tooltip: 'Barcode Scanner',
+            onPressed: () => Application.router.navigateTo(context, '/bluetooth', transition: TransitionType.inFromBottom),
+          ),
+        ], */
       ),
       // drawer: drawer,
       body: body,

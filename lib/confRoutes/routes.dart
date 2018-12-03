@@ -7,6 +7,7 @@ import 'package:arca_flutter_app/pages/articles_pages/search_art_page.dart';
 import 'package:arca_flutter_app/pages/articles_pages/art_page.dart';
 import 'package:arca_flutter_app/pages/articles_pages/giac_art_page.dart';
 import 'package:arca_flutter_app/pages/inventory/coupon_page.dart';
+import 'package:arca_flutter_app/pages/bluetooth/bluetooth.dart';
 
 class Routes {
   Router router;
@@ -54,5 +55,11 @@ class Routes {
         return new CouponPage();
       }
     ));
+    
+    // router.define("/bluetooth", handler: new Handler(
+    //   handlerFunc: (BuildContext context, Map<String, dynamic> params) {
+    //     return new BluetoothPage();
+    //   }
+    // ));
   }
 }

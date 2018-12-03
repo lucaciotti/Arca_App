@@ -20,10 +20,10 @@ class Giac {
   double get esistenza => _esistenza;
   
   Giac.fromJson(Map<String, dynamic> json){
-    _articolo = json['articolo'];
-    _magazzino = json['magazzino'];
-    _descrMag = json['descrMag'];
-    _unmisura = json['unmisura'];
+    _articolo = json['articolo'].trim();
+    _magazzino = json['magazzino'].trim();
+    _descrMag = json['descrMag'].trim();
+    _unmisura = json['unmisura'].trim();
     _esistenza = json['esistenza'].toDouble();
   }
 

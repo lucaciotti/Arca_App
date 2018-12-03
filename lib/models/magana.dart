@@ -19,8 +19,8 @@ class Magana {
   bool get isLock => _isLock;
   
   Magana.fromJson(Map<String, dynamic> json){
-    _codice = json['codice'];
-    _descrizion = json['descrizion'];
+    _codice = json['codice'].trim();
+    _descrizion = json['descrizion'].trim();
     _isFiscale = json['fiscale'];
     _isLock = json['u_lock'];
   }
