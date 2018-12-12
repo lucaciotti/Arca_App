@@ -24,7 +24,7 @@ class SearchController {
   }
 
   Future<String> barcodeSeach(String barcode) {
-    final artUrl = Uri.http("172.16.2.9:3018","/api/v1/artBarcode/"+barcode);
+    final artUrl = Uri.http("172.16.2.102:3018","/api/v1/artBarcode/"+barcode);
     return _netUtil.get(artUrl).then((dynamic json) async {
       if(json is List){
         print(json[0]['codicearti']);
@@ -36,7 +36,7 @@ class SearchController {
   }
 
   Future<String> barcodeAltSeach(String barcode) {
-    final artUrl = Uri.http("172.16.2.9:3018","/api/v1/artbarcode2/"+barcode);
+    final artUrl = Uri.http("172.16.2.102:3018","/api/v1/artbarcode2/"+barcode);
     return _netUtil.get(artUrl).then((dynamic json) async {
        if(json is List){
         print(json[0]['codicearti']);
@@ -48,7 +48,7 @@ class SearchController {
   }
 
   Future<String> articleSeach(String artcode) {
-    final artUrl = Uri.http("172.16.2.9:3018","/api/v1/article/"+artcode, {'col': 'codice'});
+    final artUrl = Uri.http("172.16.2.102:3018","/api/v1/article/"+artcode, {'col': 'codice'});
     return _netUtil.get(artUrl).then((dynamic json) async {
        if(json is List){
         print(json[0]['codice']);

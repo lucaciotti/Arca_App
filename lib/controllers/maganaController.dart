@@ -6,7 +6,7 @@ class MaganaController {
   NetApiHelper _netUtil = new NetApiHelper();
 
   Future<List<Magana>> fetchRightMag(String rMag) {
-    final url = Uri.http("172.16.2.9:3018","/api/v1/magana/right/"+rMag);
+    final url = Uri.http("172.16.2.102:3018","/api/v1/magana/right/"+rMag);
     return _netUtil.get(url).then((dynamic json) async {
       if(json is List){
         List<Magana> magList = this._parseMagJson(json);

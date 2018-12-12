@@ -7,7 +7,7 @@ class ArticleController {
   NetApiHelper _netUtil = new NetApiHelper();
 
   Future<List<Article>> fetchArticle(String codart) {
-    final artUrl = Uri.http("172.16.2.9:3018","/api/v1/article/"+codart, {'col': 'codice,descrizion,gruppo,pesounit,u_misural,u_misurah,u_misuras,unmisura,unmisura2,unmisura3,fatt2,fatt3,lotti'});
+    final artUrl = Uri.http("172.16.2.102:3018","/api/v1/article/"+codart, {'col': 'codice,descrizion,gruppo,pesounit,u_misural,u_misurah,u_misuras,unmisura,unmisura2,unmisura3,fatt2,fatt3,lotti'});
     return _netUtil.get(artUrl).then((dynamic json) async {
       if(json is List){
         List<Article> artList = this._parseJson(json);
@@ -33,7 +33,7 @@ class ArticleController {
   }
 
   Future<String> barcodeSeach(String barcode) {
-    final artUrl = Uri.http("172.16.2.9:3018","/api/v1/artBarcode/"+barcode);
+    final artUrl = Uri.http("172.16.2.102:3018","/api/v1/artBarcode/"+barcode);
     return _netUtil.get(artUrl).then((dynamic json) async {
       if(json is List){
         print(json[0]['codicearti']);
@@ -45,7 +45,7 @@ class ArticleController {
   }
 
   Future<String> codAltSeach(String barcode) {
-    final artUrl = Uri.http("172.16.2.9:3018","/api/v1/artbarcode2/"+barcode);
+    final artUrl = Uri.http("172.16.2.102:3018","/api/v1/artbarcode2/"+barcode);
     return _netUtil.get(artUrl).then((dynamic json) async {
        if(json is List){
         print(json[0]['codicearti']);
@@ -57,7 +57,7 @@ class ArticleController {
   }
 
   Future<String> articleSeach(String artcode) {
-    final artUrl = Uri.http("172.16.2.9:3018","/api/v1/article/"+artcode, {'col': 'codice'});
+    final artUrl = Uri.http("172.16.2.102:3018","/api/v1/article/"+artcode, {'col': 'codice'});
     return _netUtil.get(artUrl).then((dynamic json) async {
        if(json is List){
         print(json[0]['codice']);

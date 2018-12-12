@@ -7,7 +7,7 @@ class GiacController {
   NetApiHelper _netUtil = new NetApiHelper();
 
   Future<List<Giac>> fetchGiac(String codart, [String esercizio='2018']) {
-    final url = Uri.http("172.16.2.9:3018","/api/v1/giacArt/"+esercizio+"/"+codart, {'col': 'articolo,magazzino', 'onlygiac': '1'});
+    final url = Uri.http("172.16.2.102:3018","/api/v1/giacArt/"+esercizio+"/"+codart, {'col': 'articolo,magazzino', 'onlygiac': '1'});
     return _netUtil.get(url).then((dynamic json) async {
       if(json is List){
         List<Giac> artList = this._parseJson(json);

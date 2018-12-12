@@ -7,7 +7,7 @@ class InventController {
   NetApiHelper _netUtil = new NetApiHelper();
 
   Future<List<Coupon>> fetchCoupon(String codcoupon) {
-    final couponUrl = Uri.http("172.16.2.9:3018","/api/v1/invent/getCoupon/"+codcoupon);
+    final couponUrl = Uri.http("172.16.2.102:3018","/api/v1/invent/getCoupon/"+codcoupon);
     return _netUtil.get(couponUrl).then((dynamic json) async {
       if(json is List){
         List<Coupon> couponList = this._parseCouponJson(json);
@@ -23,7 +23,7 @@ class InventController {
   }
 
   Future<List<Coupon>> insertCoupon(Coupon coupon) {
-    final couponUrl = Uri.http("172.16.2.9:3018","/api/v1/invent/insertCoupon/");
+    final couponUrl = Uri.http("172.16.2.102:3018","/api/v1/invent/insertCoupon/");
     Map<String, dynamic> couponMap = coupon.toMap();
     return _netUtil.post(couponUrl, headers: couponMap).then((dynamic json) async {
       print(json);
@@ -36,7 +36,7 @@ class InventController {
   }
 
   Future<List<Coupon>> markCoupon(String codcart){
-    final couponUrl = Uri.http("172.16.2.9:3018","/api/v1/invent/markWarnCoupon/"+codcart);
+    final couponUrl = Uri.http("172.16.2.102:3018","/api/v1/invent/markWarnCoupon/"+codcart);
     return _netUtil.put(couponUrl).then((dynamic json) async {
       if(json is List){
         return new List<Coupon>();

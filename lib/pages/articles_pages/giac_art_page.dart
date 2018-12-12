@@ -76,8 +76,8 @@ class GiacArtPageState extends State<GiacArtPage> with TickerProviderStateMixin 
                           children: <Widget>[
                             ListTile(
                               leading: Icon(Icons.info),
-                              title: Text(snapshot.data[index].magazzino),
-                              subtitle: Text(snapshot.data[index].esistenza.toString()),
+                              title: Text(snapshot.data[index].magazzino+' - '+snapshot.data[index].descrMag),
+                              subtitle: Text(snapshot.data[index].unmisura+' '+snapshot.data[index].esistenza.toString()),
                             ),
                             Padding(padding: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 20.0),)
                           ],

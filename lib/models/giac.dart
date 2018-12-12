@@ -22,7 +22,7 @@ class Giac {
   Giac.fromJson(Map<String, dynamic> json){
     _articolo = json['articolo'].trim();
     _magazzino = json['magazzino'].trim();
-    _descrMag = json['descrMag'].trim();
+    _descrMag = json['magdesc'].trim();
     _unmisura = json['unmisura'].trim();
     _esistenza = json['esistenza'].toDouble();
   }
